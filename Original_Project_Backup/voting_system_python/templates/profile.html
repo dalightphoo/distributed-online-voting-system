@@ -1,0 +1,389 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - Online Voting System{% endblock %}
+
+{% block body_class %}hold-transition skin-blue layout-top-nav{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --profile-bg: #f4f7fb;
+        --profile-card: #ffffff;
+        --profile-line: #dfeaf5;
+        --profile-ink: #1f2937;
+        --profile-muted: #5b6b7d;
+        --profile-primary: #2563eb;
+        --profile-accent: #0f766e;
+    }
+
+    .content-wrapper {
+        background: linear-gradient(180deg, #f4f7fb 0%, #eef6ff 100%) !important;
+    }
+
+    .box {
+        border: 1px solid var(--profile-line) !important;
+        border-radius: 18px !important;
+        box-shadow: 0 12px 28px rgba(15,23,42,0.05) !important;
+        overflow: hidden;
+    }
+
+    .box-header {
+        background: linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%) !important;
+        border-bottom: 1px solid var(--profile-line) !important;
+    }
+
+    .box-body {
+        background: var(--profile-card) !important;
+        color: var(--profile-ink) !important;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--profile-primary) 0%, #1d4ed8 100%) !important;
+        border: none !important;
+    }
+
+    .btn-default {
+        background: #edf2f7 !important;
+        color: var(--profile-ink) !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="wrapper">
+
+    <header class="main-header" style="background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%); border: none;">
+        <nav class="navbar navbar-static-top" style="background: transparent; border: none;">
+
+            <div class="container">
+
+                <div class="navbar-header">
+                    <a href="{{ url_for('home') }}" class="navbar-brand" style="color: #fff; font-size: 20px; font-weight: 700; background: transparent;">
+                        Online Voting System
+                    </a>
+                </div>
+
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <li>
+                            <a href="{{ url_for('home') }}" style="color: #fff; font-size: 14px; font-weight: 600;">
+                                <i class="fa fa-home"></i>
+                                HOME
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{{ url_for('logout') }}" style="color: #fff; font-size: 14px; font-weight: 600;">
+                                <i class="fa fa-sign-out"></i>
+                                LOGOUT
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </nav>
+    </header>
+
+    <div class="content-wrapper" style="background: #f4f7fb; min-height: calc(100vh - 101px);">
+
+        <div class="container">
+
+            <section class="content">
+
+                <h1 class="page-header text-center"
+                    style="font-family:Times;color:black">
+                    <b>MY PROFILE</b>
+                </h1>
+
+
+                <div class="row">
+
+                    <div class="col-md-8 col-md-offset-2">
+
+                        <!-- FLASH MESSAGES -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+
+                            {% if messages %}
+
+                                {% for category, message in messages %}
+
+                                    {% if category == 'error' %}
+
+                                        <div class="alert alert-danger alert-dismissible">
+
+                                            <button type="button"
+                                                    class="close"
+                                                    data-dismiss="alert">
+                                                &times;
+                                            </button>
+
+                                            {{ message }}
+
+                                        </div>
+
+                                    {% elif category == 'success' %}
+
+                                        <div class="alert alert-success alert-dismissible">
+
+                                            <button type="button"
+                                                    class="close"
+                                                    data-dismiss="alert">
+                                                &times;
+                                            </button>
+
+                                            <i class="fa fa-check"></i>
+                                            {{ message }}
+
+                                        </div>
+
+                                    {% endif %}
+
+                                {% endfor %}
+
+                            {% endif %}
+
+                        {% endwith %}
+
+
+                        <!-- PROFILE BOX -->
+                            <div class="box"
+                                style="background-color:#ffffff; border:1px solid #dfeaf5; border-radius:16px;">
+
+                            <div class="box-header with-border"
+                                   style="background-color:#f8fafc; border-bottom:1px solid #dfeaf5; border-top-left-radius:16px; border-top-right-radius:16px;">
+
+                                <h3 class="box-title"
+                                    style="font-family:Times;color:black">
+
+                                    <b>
+                                        <i class="fa fa-user"></i>
+                                        Voter Information
+                                    </b>
+
+                                </h3>
+
+                            </div>
+
+
+                            <form method="POST"
+                                  action="{{ url_for('profile_update') }}"
+                                  enctype="multipart/form-data">
+
+                                <div class="box-body">
+
+                                    <div class="text-center" style="margin-bottom:25px">
+
+                                        <img
+                                            src="{{ url_for('static', filename='images/' + voter.photo) if voter.photo else url_for('static', filename='images/profile.jpg') }}"
+                                            alt="Profile Photo"
+                                            style="
+                                                width:140px;
+                                                height:140px;
+                                                object-fit:cover;
+                                                border-radius:50%;
+                                                border:3px solid #2563eb;
+                                            "
+                                        >
+
+                                        <br><br>
+
+                                        <label style="font-family:Times;color:black">
+                                            Change Profile Photo
+                                        </label>
+
+                                        <input
+                                            type="file"
+                                            name="photo"
+                                            class="form-control"
+                                            accept="image/*"
+                                        >
+
+                                    </div>
+
+
+                                    <!-- VOTER ID -->
+                                    <div class="form-group">
+
+                                        <label
+                                            style="font-family:Times;color:black">
+                                            Voter ID
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            value="{{ voter.voters_id }}"
+                                            readonly
+                                        >
+
+                                        <small style="color:#555">
+                                            Your Voter ID cannot be changed.
+                                        </small>
+
+                                    </div>
+
+
+                                    <!-- FIRST NAME -->
+                                    <div class="form-group">
+
+                                        <label
+                                            style="font-family:Times;color:black">
+                                            First Name
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="firstname"
+                                            class="form-control"
+                                            value="{{ voter.firstname }}"
+                                            required
+                                        >
+
+                                    </div>
+
+
+                                    <!-- LAST NAME -->
+                                    <div class="form-group">
+
+                                        <label
+                                            style="font-family:Times;color:black">
+                                            Last Name
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="lastname"
+                                            class="form-control"
+                                            value="{{ voter.lastname }}"
+                                            required
+                                        >
+
+                                    </div>
+
+
+                                    <hr>
+
+
+                                    <!-- PASSWORD -->
+
+                                    <div class="form-group">
+
+                                        <label style="font-family:Times;color:black">
+                                            New Password
+                                        </label>
+
+                                        <input
+                                            type="password"
+                                            name="password"
+                                            id="new_password"
+                                            class="form-control"
+                                            placeholder="Leave blank to keep current password"
+                                            value=""
+                                            autocomplete="new-password"
+                                        >
+
+                                    </div>
+
+
+                                    <div class="form-group">
+
+                                        <label style="font-family:Times;color:black">
+                                            Confirm New Password
+                                        </label>
+
+                                        <input
+                                            type="password"
+                                            name="confirm_password"
+                                            id="confirm_password"
+                                            class="form-control"
+                                            placeholder="Confirm new password"
+                                            value=""
+                                            autocomplete="new-password"
+                                        >
+
+                                    </div>
+
+                                    <small style="color:#555">
+                                        Password must be at least 6 characters.
+                                    </small>
+
+                                </div>
+
+
+                                <!-- FOOTER -->
+                                  <div class="box-footer text-center"
+                                      style="background-color:#f8fafc; border-top:1px solid #dfeaf5; border-bottom-left-radius:16px; border-bottom-right-radius:16px;">
+
+                                    <a href="{{ url_for('home') }}"
+                                       class="btn btn-default btn-curve"
+                                       style="
+                                           background-color:#f8fafc;
+                                           color:#1f2937;
+                                           border:1px solid #dfeaf5;
+                                           font-size:13px;
+                                           font-weight:600;
+                                       ">
+
+                                        <i class="fa fa-arrow-left"></i>
+                                        Back
+
+                                    </a>
+
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-primary btn-curve"
+                                        style="
+                                            background-color:#2563eb;
+                                            color:#fff;
+                                            font-size:13px;
+                                            font-weight:600;
+                                        ">
+
+                                        <i class="fa fa-save"></i>
+                                        Save Changes
+
+                                    </button>
+
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </div>
+
+
+    <!-- FOOTER -->
+        <footer class="main-footer"
+            style="background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%); border:none; color:#fff;">
+
+        <div class="container"
+             style="color:white;font-size:13px">
+
+            <div class="pull-right hidden-xs">
+                <b>All rights reserved</b>
+            </div>
+
+            <b style="color:#fff;">
+                <strong>Copyright &copy; CGL</strong>
+            </b>
+
+        </div>
+
+    </footer>
+
+</div>
+
+{% endblock %}

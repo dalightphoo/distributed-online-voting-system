@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{% block title %}Online Voting System{% endblock %}</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/bootstrap/dist/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='plugins/iCheck/all.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/font-awesome/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/AdminLTE.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/skins/_all-skins.min.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+    <style>
+        :root {
+            --public-bg: #f3f7fb;
+            --public-panel: #ffffff;
+            --public-panel-soft: #edf3ff;
+            --public-ink: #1f2937;
+            --public-muted: #5b6b7d;
+            --public-line: #dfe9f5;
+            --public-primary: #2563eb;
+            --public-primary-strong: #1d4ed8;
+            --public-accent: #0f766e;
+            --public-success: #10b981;
+            --public-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+        }
+
+        body, body * {
+            font-family: "Segoe UI", "Source Sans Pro", sans-serif !important;
+        }
+
+        body {
+            background: var(--public-bg) !important;
+            color: var(--public-ink) !important;
+        }
+
+        .login-page {
+            background: linear-gradient(135deg, #edf5ff 0%, #f7fafc 45%, #eefaf6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .login-box {
+            width: min(100%, 440px);
+            margin: 0 auto;
+            background: var(--public-panel);
+            border: 1px solid var(--public-line);
+            border-radius: 22px;
+            box-shadow: var(--public-shadow);
+            overflow: hidden;
+        }
+
+        .login-logo {
+            padding: 28px 28px 18px;
+            background: linear-gradient(135deg, #0b1f3a 0%, #1d4ed8 100%);
+            color: #fff !important;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+        }
+
+        .login-box-body {
+            background: var(--public-panel) !important;
+            color: var(--public-ink) !important;
+            padding: 28px !important;
+        }
+
+        .login-box-msg {
+            color: var(--public-muted) !important;
+            font-size: 1.05rem !important;
+            margin-bottom: 22px !important;
+        }
+
+        .form-control {
+            height: 44px !important;
+            border: 1px solid var(--public-line) !important;
+            border-radius: 12px !important;
+            box-shadow: none !important;
+            font-size: 15px !important;
+            padding-left: 14px !important;
+        }
+
+        .form-control:focus {
+            border-color: var(--public-primary) !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+        }
+
+        .has-feedback .form-control-feedback {
+            right: 14px;
+            color: var(--public-muted);
+        }
+
+        .btn {
+            border: none !important;
+            border-radius: 12px !important;
+            font-weight: 600 !important;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            padding: 10px 18px !important;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--public-primary) 0%, var(--public-primary-strong) 100%) !important;
+            color: #fff !important;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.15);
+        }
+
+        .btn-default {
+            background: #eef2f7 !important;
+            color: var(--public-ink) !important;
+            border: 1px solid var(--public-line) !important;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--public-success) 0%, var(--public-accent) 100%) !important;
+            color: #fff !important;
+        }
+
+        .btn-curve {
+            border-radius: 10px !important;
+        }
+
+        .alert {
+            border-radius: 12px !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .alert-success {
+            background: #ecfdf5 !important;
+            color: #166534 !important;
+        }
+
+        .alert-danger {
+            background: #fef2f2 !important;
+            color: #b91c1c !important;
+        }
+
+        .alert-info {
+            background: #edf6ff !important;
+            color: #234f8f !important;
+            border-left: 4px solid #60a5fa !important;
+        }
+
+        .callout {
+            margin: 20px 0 0;
+            padding: 18px 20px;
+            border: 1px solid var(--public-line);
+            border-left: 5px solid var(--public-primary);
+            border-radius: 14px;
+            background: var(--public-panel) !important;
+            color: var(--public-ink) !important;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+            text-align: left !important;
+        }
+
+        .callout.callout-success {
+            border-left-color: var(--public-accent);
+            background: #f0fdf9 !important;
+        }
+
+        .callout.callout-danger {
+            border-left-color: #dc2626;
+            background: #fff7f7 !important;
+            color: #991b1b !important;
+        }
+
+        .callout.callout-danger,
+        .callout.callout-danger p,
+        .callout.callout-danger b,
+        .callout.callout-danger strong {
+            color: #991b1b !important;
+        }
+
+        .registration-success-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin: 0 0 10px;
+            color: #0f766e;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .registration-success-message {
+            margin: 0;
+            color: var(--public-ink);
+            font-size: 15px;
+            line-height: 1.55;
+        }
+
+        .registration-success-note {
+            margin: 12px 0 0;
+            padding-top: 12px;
+            border-top: 1px solid #ccefe3;
+            color: var(--public-muted);
+            font-size: 13px;
+        }
+
+        .mt20 { margin-top: 20px; }
+        .title { font-size: 48px; font-weight: 700; color: var(--public-ink); }
+        #candidate_list { margin-top: 20px; }
+        #candidate_list ul { list-style-type: none; padding-left: 0; }
+        #candidate_list ul li { margin: 0 20px 20px 0; vertical-align: top; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 14px 16px; border: 1px solid var(--public-line); border-radius: 14px; background: var(--public-panel-soft); }
+        .clist { margin-left: 0; }
+        .cname { font-size: 1.1rem; font-weight: 700; color: var(--public-ink); }
+        .votelist { font-size: 17px; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}hold-transition login-page{% endblock %}" style="background: linear-gradient(135deg, #edf5ff 0%, #f8fafc 48%, #eefaf6 100%);">
+    {% block content %}{% endblock %}
+    
+    <script src="{{ url_for('static', filename='bower_components/jquery/dist/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='plugins/iCheck/icheck.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/jquery-slimscroll/jquery.slimscroll.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/fastclick/lib/fastclick.js') }}"></script>
+    <script src="{{ url_for('static', filename='dist/js/adminlte.min.js') }}"></script>
+    <script>
+        $(function () {
+            $('#example1').DataTable()
+            var bookTable = $('#booklist').DataTable({
+                'paging': true,
+                'lengthChange': false,
+                'searching': true,
+                'ordering': true,
+                'info': false,
+                'autoWidth': false
+            })
+            $('#searchBox').on('keyup', function(){
+                bookTable.search(this.value).draw();
+            });
+        })
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

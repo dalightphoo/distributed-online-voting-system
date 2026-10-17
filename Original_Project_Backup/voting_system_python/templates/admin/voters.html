@@ -1,0 +1,411 @@
+{% extends "admin/base.html" %}
+{% from "admin/includes/layout.html" import admin_header, admin_sidebar, admin_footer, flash_messages, profile_modal with context %}
+
+{% block title %}Voters - Admin{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    {{ admin_header(admin_user) }}
+    {{ admin_sidebar(admin_user, 'voters') }}
+
+    <div class="content-wrapper" style="background-color:#f4f7fb;">
+        <div style="margin-bottom: 15px;">
+            <a href="{{ url_for('admin_home') }}"
+            class="btn btn-default btn-curve"
+            style="
+                background-color: #f8fafc;
+                color: #1f2937;
+                font-size: 15px;
+                border: 1px solid #dfeaf5;
+            ">
+                <i class="fa fa-arrow-left"></i>
+                <b>Back to Dashboard</b>
+            </a>
+        </div>
+        <section class="content-header">
+            <h1><b>Voters List</b></h1>
+        </section>
+
+        <section class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        {% if category == 'error' %}
+                            <div class='alert alert-danger alert-dismissible'>
+                                <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+                                <h4><i class='icon fa fa-warning'></i> Error!</h4>
+                                {{ message }}
+                            </div>
+                        {% elif category == 'success' %}
+                            <div class='alert alert-success alert-dismissible'>
+                                <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+                                <h4><i class='icon fa fa-check'></i> Success!</h4>
+                                {{ message }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box" style="background-color: #ffffff; border: 1px solid #dfeaf5; border-radius: 16px;">
+                        <div class="box-header with-border" style="background-color: #f8fafc; border-bottom: 1px solid #dfeaf5; border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                            <a href="#addnew" data-toggle="modal" class="btn btn-primary btn-sm btn-curve" style="background-color: #2563eb; border-color: #2563eb; color: #fff; font-size: 12px; font-weight: 600;"><i class="fa fa-plus"></i> New</a>
+                        </div>
+                        <div class="box-body">
+                            <table id="example1" class="table">
+                                <thead>
+                                    <th>Firstname</th>
+                                    <th>Lastname</th>
+                                    <th class="no-sort">Photo</th>
+                                    <th>Voters ID</th>
+                                    <th class="no-sort">Tools</th>
+                                </thead>
+                                <tbody>
+                                    {% for voter in voters %}
+                                        <tr style='color:black ; font-size: 15px; font-family:Times'>
+                                            <td>{{ voter.firstname }}</td>
+                                            <td>{{ voter.lastname }}</td>
+                                            <td>
+                                                <img src="{{ url_for('static', filename='images/' + voter.photo) if voter.photo else url_for('static', filename='images/profile.jpg') }}" width='30px' height='30px'>
+                                                <a href='#edit_photo' data-toggle='modal' class='pull-right photo' data-id='{{ voter.id }}'><span class='fa fa-edit'></span></a>
+                                            </td>
+                                            <td>{{ voter.voters_id }}</td>
+                                            <td>
+                                                <button class='btn btn-success btn-sm edit btn-curve' style='background-color: #0f766e; border-color: #0f766e; color:#fff; font-size: 12px; font-weight: 600;' data-id='{{ voter.id }}'><i class='fa fa-edit'></i> Edit</button>
+                                                <button class='btn btn-danger btn-sm delete btn-curve' style='background-color:#dc2626; border-color:#dc2626; color:#fff; font-size: 12px; font-weight: 600;' data-id='{{ voter.id }}'><i class='fa fa-trash'></i> Delete</button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>   
+    </div>
+    
+    <footer class="main-footer" style="background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%); border: none; color: #fff;">
+        <div class="pull-right hidden-xs" style="color: #fff; font-size: 13px;">
+            <b>All rights reserved</b>
+        </div>
+        <b style="color: #fff; font-size: 13px;"><strong>Copyright &copy; CGL </strong></b>
+    </footer>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addnew">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #ffffff; color: #1f2937; border-radius: 16px; border: 1px solid #dfeaf5;">
+            <div class="modal-header">
+                <button type="button" class=" btn btn-close btn-curve pull-right" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><b>Add New Voter</b></h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" method="POST" action="{{ url_for('admin_voters_add') }}" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="firstname" class="col-sm-3 control-label">Firstname</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="firstname" name="firstname" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastname" class="col-sm-3 control-label">Lastname</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="lastname" name="lastname" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="col-sm-3 control-label">Password</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="photo" class="col-sm-3 control-label">Photo</label>
+                        <div class="col-sm-9">
+                            <input type="file" id="photo" name="photo">
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-curve pull-left" style='background-color: #f8fafc; color:#1f2937; border:1px solid #dfeaf5; font-size: 12px; font-weight: 600;' data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                <button type="submit" class="btn btn-primary btn-curve" style='background-color: #2563eb; border-color: #2563eb; color:#fff; font-size: 12px; font-weight: 600;' name="add"><i class="fa fa-save"></i> Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="edit">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #ffffff; color: #1f2937; border-radius: 16px; border: 1px solid #dfeaf5;">
+            <div class="modal-header">
+                <button type="button" class=" btn btn-close btn-curve pull-right" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><b>Edit Voter</b></h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" method="POST" action="{{ url_for('admin_voters_edit') }}">
+                    <input type="hidden" class="id" name="id">
+                    <div class="form-group">
+                        <label for="edit_firstname" class="col-sm-3 control-label">Firstname</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="edit_firstname" name="firstname">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_lastname" class="col-sm-3 control-label">Lastname</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="edit_lastname" name="lastname">
+                        </div>
+                    </div>
+                    <div class="alert alert-info" role="status">
+                        <i class="fa fa-lock"></i>
+                        The voter password cannot be changed by an administrator.
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-curve pull-left" style='background-color: #f8fafc; color:#1f2937; border:1px solid #dfeaf5; font-size: 12px; font-weight: 600;' data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                <button type="submit" class="btn btn-success btn-curve" style='background-color: #0f766e; border-color: #0f766e; color:#fff; font-size: 12px; font-weight: 600;' name="edit"><i class="fa fa-check-square-o"></i> Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="delete">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #ffffff; color: #1f2937; border-radius: 16px; border: 1px solid #dfeaf5;">
+            <div class="modal-header">
+                <button type="button" class=" btn btn-close btn-curve pull-right" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><b>Deleting...</b></h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" method="POST" action="{{ url_for('admin_voters_delete') }}">
+                    <input type="hidden" class="id" name="id">
+                    <div class="text-center">
+                        <p>DELETE VOTER</p>
+                        <h2 class="bold fullname"></h2>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-curve pull-left" style='background-color: #f8fafc; color:#1f2937; border:1px solid #dfeaf5; font-size: 12px; font-weight: 600;' data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                <button type="submit" class="btn btn-danger btn-curve" style='background-color: #dc2626; border-color:#dc2626; color:#fff; font-size: 12px; font-weight: 600;' name="delete"><i class="fa fa-trash"></i> Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Photo Modal -->
+<div class="modal fade" id="edit_photo">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #ffffff; color: #1f2937; border-radius: 16px; border: 1px solid #dfeaf5;">
+            <div class="modal-header">
+                <button type="button" class=" btn btn-close btn-curve pull-right" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><b><span class="fullname"></span></b></h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" method="POST" action="{{ url_for('admin_voters_photo') }}" enctype="multipart/form-data">
+                    <input type="hidden" class="id" name="id">
+                    <div class="form-group">
+                        <label for="photo" class="col-sm-3 control-label">Photo</label>
+                        <div class="col-sm-9">
+                            <input type="file" id="photo" name="photo" required>
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-curve pull-left" style='background-color: #f8fafc; color:#1f2937; border:1px solid #dfeaf5; font-size: 12px; font-weight: 600;' data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                <button type="submit" class="btn btn-success btn-curve" style='background-color: #0f766e; border-color: #0f766e; color:#fff; font-size: 12px; font-weight: 600;' name="upload"><i class="fa fa-check-square-o"></i> Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="modal fade" id="profile">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><b>Admin Profile</b></h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" method="POST" action="{{ url_for('admin_profile_update', return='voters') }}" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="username" class="col-sm-3 control-label">Username</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="username" name="username" value="{{ admin_user.username }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="col-sm-3 control-label">Password</label>
+                        <div class="col-sm-9"> 
+                            <input type="password" class="form-control" id="password" name="password" value="{{ admin_user.password }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="firstname" class="col-sm-3 control-label">Firstname</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="firstname" name="firstname" value="{{ admin_user.firstname }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastname" class="col-sm-3 control-label">Lastname</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="lastname" name="lastname" value="{{ admin_user.lastname }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="photo" class="col-sm-3 control-label">Photo:</label>
+                        <div class="col-sm-9">
+                            <input type="file" id="photo" name="photo">
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="form-group">
+                        <label for="curr_password" class="col-sm-3 control-label">Current Password:</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" id="curr_password" name="curr_password" placeholder="input current password to save changes" required>
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                <button type="submit" class="btn btn-success btn-flat" name="save"><i class="fa fa-check-square-o"></i> Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(function () {
+
+    // =========================
+    // EDIT VOTER
+    // =========================
+    $(document).on('click', '.edit', function (e) {
+        e.preventDefault();
+
+        var id = $(this).data('id');
+
+        $.ajax({
+            type: 'POST',
+            url: '{{ url_for("admin_voters_row") }}',
+            data: { id: id },
+            dataType: 'json',
+
+            success: function (response) {
+
+                if (response.error) {
+                    alert(response.message);
+                    return;
+                }
+
+                $('#edit .id').val(response.id);
+                $('#edit_firstname').val(response.firstname);
+                $('#edit_lastname').val(response.lastname);
+
+                $('#edit').modal('show');
+            },
+
+            error: function (xhr) {
+                console.error(xhr.responseText);
+                alert('Could not load voter information.');
+            }
+        });
+    });
+
+
+    // =========================
+    // DELETE VOTER
+    // =========================
+    $(document).on('click', '.delete', function (e) {
+        e.preventDefault();
+
+        var id = $(this).data('id');
+
+        $.ajax({
+            type: 'POST',
+            url: '{{ url_for("admin_voters_row") }}',
+            data: { id: id },
+            dataType: 'json',
+
+            success: function (response) {
+
+                if (response.error) {
+                    alert(response.message);
+                    return;
+                }
+
+                $('#delete .id').val(response.id);
+
+                $('#delete .fullname').text(
+                    response.firstname + ' ' + response.lastname
+                );
+
+                $('#delete').modal('show');
+            },
+
+            error: function (xhr) {
+                console.error(xhr.responseText);
+                alert('Could not load voter information.');
+            }
+        });
+    });
+
+
+    // =========================
+    // CHANGE PHOTO
+    // =========================
+    $(document).on('click', '.photo', function (e) {
+        e.preventDefault();
+
+        var id = $(this).data('id');
+
+        $.ajax({
+            type: 'POST',
+            url: '{{ url_for("admin_voters_row") }}',
+            data: { id: id },
+            dataType: 'json',
+
+            success: function (response) {
+
+                if (response.error) {
+                    alert(response.message);
+                    return;
+                }
+
+                $('#edit_photo .id').val(response.id);
+
+                $('#edit_photo .fullname').text(
+                    response.firstname + ' ' + response.lastname
+                );
+
+                $('#edit_photo').modal('show');
+            },
+
+            error: function (xhr) {
+                console.error(xhr.responseText);
+                alert('Could not load voter information.');
+            }
+        });
+    });
+
+});
+</script>
+{% endblock %}

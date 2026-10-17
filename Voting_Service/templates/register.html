@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Voter Registration{% endblock %}
+
+{% block content %}
+
+<div class="login-box">
+
+    <div class="login-logo">
+        <span>Online Voting System</span>
+    </div>
+
+    <div class="login-box-body">
+
+        <p class="login-box-msg">
+            Register as a Voter
+        </p>
+
+        <!-- Registration information -->
+        <div class="alert alert-info"
+             style="font-size:13px;
+                    font-family:Times;
+                    color:black;
+                    background-color:#d9edf7;
+                    border:none;">
+
+            <strong>Voter Registration</strong>
+
+            <br><br>
+
+            Create your voter account below.
+
+            <br>
+
+            Your <b>Voter ID</b> will be generated automatically
+            after registration.
+
+            <br>
+
+            You will create your own password.
+
+            <br><br>
+
+            <i class="fa fa-info-circle"></i>
+            Password must be at least <b>6 characters</b>.
+
+            <br>
+
+            <i class="fa fa-info-circle"></i>
+            You will need your <b>Voter ID and Password</b>
+            to log in later.
+
+        </div>
+
+
+        <form action="{{ url_for('register') }}" method="POST">
+
+            <!-- FIRST NAME -->
+            <div class="form-group has-feedback">
+
+                <input
+                    type="text"
+                    class="form-control"
+                    name="firstname"
+                    placeholder="First Name"
+                    required
+                >
+
+                <span class="glyphicon glyphicon-user form-control-feedback"></span>
+
+            </div>
+
+
+            <!-- LAST NAME -->
+            <div class="form-group has-feedback">
+
+                <input
+                    type="text"
+                    class="form-control"
+                    name="lastname"
+                    placeholder="Last Name"
+                    required
+                >
+
+                <span class="glyphicon glyphicon-user form-control-feedback"></span>
+
+            </div>
+
+
+            <!-- PASSWORD -->
+            <div class="form-group has-feedback">
+
+                <input
+                    type="password"
+                    class="form-control"
+                    name="password"
+                    placeholder="Password (minimum 6 characters)"
+                    minlength="6"
+                    required
+                >
+
+                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+
+            </div>
+
+
+            <!-- CONFIRM PASSWORD -->
+            <div class="form-group has-feedback">
+
+                <input
+                    type="password"
+                    class="form-control"
+                    name="confirm_password"
+                    placeholder="Confirm Password"
+                    minlength="6"
+                    required
+                >
+
+                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+
+            </div>
+
+
+            <!-- REGISTER BUTTON -->
+            <div class="row">
+
+                <div class="col-xs-6">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-block btn-curve"
+                        style="background-color:#4682B4;
+                               color:black;
+                               font-size:12px;
+                               font-family:Times"
+                    >
+                        <i class="fa fa-user-plus"></i>
+                        Register
+                    </button>
+
+                </div>
+
+                <div class="col-xs-6">
+
+                    <a
+                        href="{{ url_for('index') }}"
+                        class="btn btn-default btn-block btn-curve"
+                        style="background-color:#d2d5d8;
+                               color:black;
+                               font-size:12px;
+                               font-family:Times"
+                    >
+                        <i class="fa fa-sign-in"></i>
+                        Back
+                    </a>
+
+                </div>
+
+            </div>
+
+        </form>
+
+
+        <!-- NAVIGATION -->
+        <div class="text-center" style="margin-top:20px;">
+
+            <a
+                href="{{ url_for('index') }}"
+                class="btn btn-default btn-sm btn-curve"
+                style="background-color:#d2d5d8;
+                       color:black;"
+            >
+                <i class="fa fa-sign-in"></i>
+                Voter Login
+            </a>
+
+            <a
+                href="{{ url_for('admin_index') }}"
+                class="btn btn-default btn-sm btn-curve"
+                style="margin-right:8px;
+                       background-color:#d2d5d8;
+                       color:black;"
+            >
+                <i class="fa fa-user"></i>
+                Admin Login
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                {% if category == 'error' %}
+
+                    <div class="callout callout-danger text-center mt20">
+                        <p>{{ message }}</p>
+                    </div>
+
+                {% elif category == 'success' %}
+
+                    <div class="callout callout-success text-center mt20">
+                        <p>{{ message }}</p>
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+</div>
+
+{% endblock %}

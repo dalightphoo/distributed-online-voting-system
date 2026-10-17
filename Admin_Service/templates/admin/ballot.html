@@ -1,0 +1,389 @@
+﻿{% extends "admin/base.html" %}
+{% from "admin/includes/layout.html" import admin_header, admin_sidebar, admin_footer, flash_messages, profile_modal with context %}
+
+{% block title %}Ballot Position - Admin{% endblock %}
+
+{% block content %}
+
+<div class="wrapper">
+
+{{ admin_header(admin_user) }}
+{{ admin_sidebar(admin_user, 'ballot') }}
+
+<div class="content-wrapper" style="background-color: #f4f7fb">
+
+    <section class="content-header">
+
+        <h1>
+            <b>Ballot Position - {{ selected_election.title }}</b>
+        </h1>
+
+    </section>
+
+
+    <section class="content">
+
+        {{ flash_messages() }}
+
+        <div class="alert alert-info">
+            <i class="fa fa-info-circle"></i>
+
+            Reorder the positions for the selected election.
+            Positions and candidates are managed separately on their own pages.
+        </div>
+
+
+        <!-- =========================================================
+             ELECTION SELECTOR
+             ========================================================= -->
+
+        <div class="row">
+
+            <div class="col-xs-10 col-xs-offset-1">
+
+                 <div class="box box-solid"
+                     style="background-color:#ffffff; border: 1px solid #dfeaf5;">
+
+                    <div class="box-header with-border">
+
+                        <h3 class="box-title">
+                            <b>Select Election</b>
+                        </h3>
+
+                    </div>
+
+                    <div class="box-body">
+
+                        <select id="election_id"
+                                class="form-control"
+                                style="font-family:Times; font-size:16px;">
+
+                            {% for election in elections %}
+
+                                <option value="{{ election.id }}"
+                                    {% if election.id == selected_election_id %}
+                                        selected
+                                    {% endif %}>
+
+                                    {{ election.title }}
+
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================================================
+             BALLOT POSITIONS
+             ========================================================= -->
+
+        <div class="row">
+
+            <div class="col-xs-10 col-xs-offset-1"
+                 id="content">
+
+                <div class="text-center"
+                     style="padding:30px;">
+
+                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+
+                    <p>
+                        Loading ballot positions...
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+{{ admin_footer() }}
+</div>
+
+{{ profile_modal(admin_user, 'ballot') }}
+
+<!-- =========================================================
+     JAVASCRIPT
+     ========================================================= -->
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+
+$(document).ready(function () {
+
+    /*
+     * Load the positions for the currently selected election.
+     */
+    loadBallot();
+
+
+    /*
+     * When administrator changes election,
+     * reload the ballot positions.
+     */
+    $('#election_id').on('change', function () {
+
+        var electionId = $(this).val();
+
+        if (!electionId) {
+
+            $('#content').html(
+                '<div class="alert alert-warning">' +
+                '<i class="fa fa-info-circle"></i> ' +
+                'Please select an election.' +
+                '</div>'
+            );
+
+            return;
+        }
+
+
+        /*
+         * Save selected election in Flask session.
+         */
+        $.ajax({
+
+            type: 'POST',
+
+            url: '{{ url_for("admin_elections_select") }}',
+
+            data: {
+                election_id: electionId,
+                next: '{{ url_for("admin_ballot") }}'
+            },
+
+            success: function () {
+
+                loadBallot();
+
+            },
+
+            error: function (xhr) {
+
+                console.error(xhr.responseText);
+
+                loadBallot();
+
+            }
+
+        });
+
+    });
+
+
+    /*
+     * =========================================================
+     * MOVE POSITION UP
+     * =========================================================
+     */
+
+    $(document).on('click', '.move-up', function (e) {
+
+        e.preventDefault();
+
+        var id = $(this).data('id');
+
+        var button = $(this);
+
+        button.prop('disabled', true);
+
+
+        $.ajax({
+
+            type: 'POST',
+
+            url: '{{ url_for("admin_ballot_up") }}',
+
+            data: {
+                id: id
+            },
+
+            dataType: 'json',
+
+            success: function (response) {
+
+                if (!response.error) {
+
+                    loadBallot();
+
+                } else {
+
+                    alert(response.message);
+
+                }
+
+            },
+
+            error: function (xhr) {
+
+                console.error(
+                    'Move position up error:',
+                    xhr.responseText
+                );
+
+            },
+
+            complete: function () {
+
+                button.prop('disabled', false);
+
+            }
+
+        });
+
+    });
+
+
+    /*
+     * =========================================================
+     * MOVE POSITION DOWN
+     * =========================================================
+     */
+
+    $(document).on('click', '.move-down', function (e) {
+
+        e.preventDefault();
+
+        var id = $(this).data('id');
+
+        var button = $(this);
+
+        button.prop('disabled', true);
+
+
+        $.ajax({
+
+            type: 'POST',
+
+            url: '{{ url_for("admin_ballot_down") }}',
+
+            data: {
+                id: id
+            },
+
+            dataType: 'json',
+
+            success: function (response) {
+
+                if (!response.error) {
+
+                    loadBallot();
+
+                } else {
+
+                    alert(response.message);
+
+                }
+
+            },
+
+            error: function (xhr) {
+
+                console.error(
+                    'Move position down error:',
+                    xhr.responseText
+                );
+
+            },
+
+            complete: function () {
+
+                button.prop('disabled', false);
+
+            }
+
+        });
+
+    });
+
+});
+
+
+/* =========================================================
+   LOAD BALLOT POSITIONS
+   ========================================================= */
+
+function loadBallot() {
+
+    var electionId = $('#election_id').val();
+
+
+    if (!electionId) {
+
+        $('#content').html(
+            '<div class="alert alert-warning">' +
+            '<i class="fa fa-info-circle"></i> ' +
+            'No election selected.' +
+            '</div>'
+        );
+
+        return;
+    }
+
+
+    $('#content').html(
+        '<div class="text-center" style="padding:30px;">' +
+        '<i class="fa fa-spinner fa-spin fa-2x"></i>' +
+        '<p>Loading ballot positions...</p>' +
+        '</div>'
+    );
+
+
+    $.ajax({
+
+        type: 'POST',
+
+        url: '{{ url_for("admin_ballot_fetch") }}',
+
+        data: {
+            election_id: electionId
+        },
+
+        dataType: 'json',
+
+        success: function (response) {
+
+            $('#content').html(response);
+
+        },
+
+        error: function (xhr) {
+
+            console.error(
+                'Ballot loading error:',
+                xhr.responseText
+            );
+
+
+            $('#content').html(
+                '<div class="alert alert-danger">' +
+                '<i class="fa fa-exclamation-triangle"></i> ' +
+                '<b>Unable to load ballot positions.</b>' +
+                '<br><br>' +
+                'Please check that the selected election has positions.' +
+                '</div>'
+            );
+
+        }
+
+    });
+
+}
+
+</script>
+
+{% endblock %}

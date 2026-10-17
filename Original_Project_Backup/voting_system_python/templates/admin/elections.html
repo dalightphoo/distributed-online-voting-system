@@ -1,0 +1,49 @@
+{% extends "admin/base.html" %}
+{% from "admin/includes/layout.html" import admin_header, admin_sidebar, admin_footer, flash_messages, profile_modal with context %}
+
+{% block title %}Elections - Admin{% endblock %}
+{% block content %}
+<div class="wrapper">
+    {{ admin_header(admin_user) }}
+    {{ admin_sidebar(admin_user, 'elections') }}
+    <div class="content-wrapper" style="background-color:#f4f7fb">
+        <section class="content-header"><h1><b>Elections</b></h1></section>
+        <section class="content">
+            {{ flash_messages() }}
+            <div class="box box-primary">
+                <div class="box-header with-border"><h3 class="box-title">Create election</h3></div>
+                <form method="POST" action="{{ url_for('admin_elections_add') }}" class="form-horizontal">
+                    <div class="box-body">
+                        <div class="form-group"><label class="col-sm-3 control-label" for="title">Title</label><div class="col-sm-7"><input class="form-control" id="title" name="title" required></div></div>
+                        <div class="form-group"><label class="col-sm-3 control-label" for="deadline">Deadline</label><div class="col-sm-7"><input class="form-control" type="datetime-local" id="deadline" name="deadline" required></div></div>
+                    </div>
+                    <div class="box-footer"><button class="btn btn-primary pull-right" type="submit"><i class="fa fa-plus"></i> Create election</button></div>
+                </form>
+            </div>
+            <h3>All elections</h3>
+            {% for election in elections %}
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <h3 class="box-title"><b>{{ election.title }}</b></h3>
+                    <span class="label {{ 'label-success' if election.is_open else 'label-default' }} pull-right">{{ 'OPEN' if election.is_open else 'CLOSED' }}</span>
+                </div>
+                <div class="box-body">
+                    <p>Deadline: {{ election.deadline }}</p>
+                    {% if not election.is_open %}
+                        {% for result in election.results %}
+                            <p><b>{{ result.position.description }}:</b> {% if result.winner %}{{ result.winner.firstname }} {{ result.winner.lastname }}{% else %}No votes{% endif %}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('admin_elections_delete') }}" onsubmit="return confirm('Delete this election and its votes?');">
+                        <input type="hidden" name="id" value="{{ election.id }}">
+                        <button class="btn btn-danger btn-sm" type="submit"><i class="fa fa-trash"></i> Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% else %}<p>No elections have been created.</p>{% endfor %}
+        </section>
+    </div>
+    {{ admin_footer() }}
+</div>
+{{ profile_modal(admin_user, 'elections') }}
+{% endblock %}

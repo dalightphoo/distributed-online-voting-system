@@ -1,0 +1,625 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Online Voting System{% endblock %}
+
+{% block body_class %}hold-transition skin-blue layout-top-nav{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --voter-bg: #edf4ff;
+        --voter-panel: #ffffff;
+        --voter-panel-soft: #f6faff;
+        --voter-ink: #162033;
+        --voter-muted: #52637a;
+        --voter-line: #dfeaf5;
+        --voter-primary: #2563eb;
+        --voter-accent: #0f766e;
+        --voter-gold: #f59e0b;
+        --voter-success: #10b981;
+    }
+
+    .wrapper {
+        background: linear-gradient(180deg, #edf4ff 0%, #f8fbff 100%);
+    }
+
+    .main-header {
+        background: linear-gradient(135deg, #101b31 0%, #1d4ed8 100%) !important;
+        box-shadow: none !important;
+    }
+
+    .navbar-static-top {
+        background: transparent !important;
+    }
+
+    .navbar-brand,
+    .navbar-nav > li > a,
+    .navbar-nav > li > a:hover,
+    .navbar-nav > li > a:focus {
+        color: #fff !important;
+        font-weight: 700 !important;
+    }
+
+    .navbar-nav > li > a {
+        padding-top: 18px;
+        padding-bottom: 18px;
+    }
+
+    .user-menu .user-image {
+        border: 2px solid rgba(255,255,255,0.7);
+    }
+
+    .content-wrapper {
+        background: transparent !important;
+        padding-bottom: 40px;
+    }
+
+    .content {
+        padding-top: 12px;
+    }
+
+    .page-header {
+        margin-top: 0;
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        color: var(--voter-ink);
+        letter-spacing: 0.04em;
+    }
+
+    .box {
+        border: 1px solid var(--voter-line) !important;
+        border-radius: 18px !important;
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.05) !important;
+        overflow: hidden;
+    }
+
+    .box-header {
+        background: linear-gradient(135deg, #eef5ff 0%, #f8fafc 100%) !important;
+        color: var(--voter-ink) !important;
+        border-bottom: 1px solid var(--voter-line) !important;
+        padding: 18px 20px !important;
+    }
+
+    .box-header .box-title {
+        font-size: 22px;
+        color: var(--voter-ink);
+    }
+
+    .box-body {
+        background: var(--voter-panel);
+        padding: 20px 22px !important;
+        color: var(--voter-ink);
+    }
+
+    .label {
+        border-radius: 999px !important;
+        font-size: 11px !important;
+        letter-spacing: 0.06em;
+        padding: 0.5em 0.8em !important;
+    }
+
+    .label-success {
+        background: var(--voter-success) !important;
+    }
+
+    .label-warning {
+        background: var(--voter-gold) !important;
+        color: #1f2937 !important;
+    }
+
+    .alert {
+        border-radius: 12px !important;
+        border: none !important;
+    }
+
+    .alert-info {
+        background: #edf6ff !important;
+        color: #234f8f !important;
+    }
+
+    .ballotForm .box {
+        background: var(--voter-panel-soft);
+        border-color: var(--voter-line);
+        margin-bottom: 18px;
+    }
+
+    .ballotForm .box-header {
+        background: linear-gradient(135deg, #f8fbff 0%, #edf5ff 100%) !important;
+    }
+
+    #candidate_list ul {
+        margin: 0;
+        display: grid;
+        gap: 12px;
+    }
+
+    #candidate_list ul li {
+        background: var(--voter-panel);
+        border: 1px solid var(--voter-line);
+        border-radius: 14px;
+        padding: 12px 14px;
+        margin: 0 !important;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    #candidate_list ul li img {
+        width: 82px;
+        height: 82px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid #dfeaf5;
+    }
+
+    .cname {
+        font-weight: 700;
+        font-size: 18px;
+        color: var(--voter-ink);
+    }
+
+    .btn {
+        border-radius: 10px !important;
+        padding: 10px 16px !important;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--voter-primary) 0%, #1d4ed8 100%) !important;
+        border: none !important;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, var(--voter-success) 0%, var(--voter-accent) 100%) !important;
+        border: none !important;
+    }
+
+    .btn-default {
+        background: #eef2f7 !important;
+        color: var(--voter-ink) !important;
+    }
+
+    .main-footer {
+        background: linear-gradient(135deg, #101b31 0%, #1d4ed8 100%) !important;
+        color: #fff !important;
+        border-top: none !important;
+    }
+
+    .modal-content {
+        border-radius: 16px !important;
+        border: 1px solid var(--voter-line) !important;
+        box-shadow: 0 18px 36px rgba(15,23,42,0.12);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <header class="main-header" style="background-color:#101b31;">
+        <nav class="navbar navbar-static-top" style="background-color:transparent;">
+            <div class="container" style="background-color:transparent;">
+                <div class="navbar-header" style="background-color:transparent;">
+                    <a href="#" class="navbar-brand" style="color:#fff; font-size: 22px; font-weight: 700; background: transparent;">ONLINE VOTING SYSTEM</a>
+                    <button type="button" class="navbar-toggle collapsed" style="background: transparent; border-color: rgba(255,255,255,0.5);" data-toggle="collapse" data-target="#navbar-collapse">
+                        <i class="fa fa-bars" style="color:#fff;"></i>
+                    </button>
+                </div>
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <li class="user user-menu">
+                            <a href="{{ url_for('profile') }}">
+                                <img src="{{ url_for('static', filename='images/' + voter.photo) if voter.photo else url_for('static', filename='images/profile.jpg') }}" class="user-image" alt="User Image">
+                                <span class="hidden-xs" style="color:#fff; font-size: 16px; font-weight: 600;">{{ voter.firstname }} {{ voter.lastname }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('logout') }}" style="color:#fff; font-size: 15px; font-weight: 600;">
+                                <i class="fa fa-sign-out"></i> LOGOUT
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="content-wrapper" style="background: transparent;">
+        <div class="container" style="background: transparent;">
+            <section class="content">
+                <h1 class="page-header text-center title"><b>{{ election_title|upper }}</b></h1>
+                <div class="row">
+                    <div class="col-sm-10 col-sm-offset-1">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    {% if category == 'error' %}
+                                        <div class="alert alert-danger alert-dismissible">
+                                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                            <ul>
+                                                <li>{{ message }}</li>
+                                            </ul>
+                                        </div>
+                                    {% elif category == 'success' %}
+                                        <div class="alert alert-success alert-dismissible">
+                                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                            <h4><i class="icon fa fa-check"></i> Success!</h4>
+                                            {{ message }}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                        <div class="alert alert-danger alert-dismissible" id="alert" style="display:none;">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            <span class="message"></span>
+                        </div>
+
+                        {% for election in elections %}
+                            <div class="box box-solid" style="margin-bottom:25px;">
+                                <div class="box-header with-border">
+                                    <h2 class="box-title"><b>{{ election.title }}</b></h2>
+                                    {% if election.is_open %}<span class="label label-success pull-right">OPEN</span>{% else %}<span class="label label-default pull-right">CLOSED</span>{% endif %}
+                                </div>
+                                <div class="box-body">
+                                {% if election.is_open %}
+                                    <p>Deadline: {{ election.deadline }} <span class="label label-warning pull-right countdown" data-deadline="{{ election.deadline_ms }}">Calculating...</span></p>
+                                    {% if election.has_voted %}
+                                        <div class="alert alert-success">You have already voted in this election.</div>
+                                    {% else %}
+                            <form method="POST" class="ballotForm" action="{{ url_for('submit_ballot') }}">
+                                <input type="hidden" name="election_id" value="{{ election.id }}">
+                                {% for pos in election.positions %}
+                                    {% set candidates = pos.candidates %}
+                                    {% set name = slugify(pos.description) %}
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <div class="box box-solid" id="{{ pos.id }}">
+                                                <div class="box-header with-border">
+                                                    <h3 class="box-title"><b>{{ pos.description }}</b></h3>
+                                                </div>
+                                                <div class="box-body" >
+                                                    <p>
+                                                        {% if pos.position_locked %}
+                                                            You have used all {{ pos.max_vote }} vote{{ 's' if pos.max_vote != 1 else '' }} for this position.
+                                                        {% else %}
+                                                            {{ 'You may select up to ' ~ (pos.max_vote - pos.votes_used) ~ ' more candidate(s)' if pos.max_vote > 1 else 'Select only one candidate' }}
+                                                        {% endif %}
+                                                        <span class="pull-right">
+                                                            <button type="button" class="btn btn-success btn-sm btn-curve reset" data-desc="{{ name }}" {{ 'disabled' if pos.position_locked else '' }}><i class="fa fa-refresh"></i> Reset</button>
+                                                        </span>
+                                                    </p>
+                                                    <div id="candidate_list">
+                                                        <ul>
+                                                            {% for c in candidates %}
+                                                                <li>
+                                                                    {% if pos.max_vote > 1 %}
+                                                                        <input type="checkbox" class="flat-red {{ name }}" name="{{ name }}" value="{{ c.id }}" {{ 'disabled' if pos.position_locked or c.id in pos.previous_candidate_ids else '' }}>
+                                                                    {% else %}
+                                                                        <input type="radio" class="flat-red {{ name }}" name="{{ name }}" value="{{ c.id }}" {{ 'disabled' if pos.position_locked or c.id in pos.previous_candidate_ids else '' }}>
+                                                                    {% endif %}
+                                                                    <button type="button"
+                                                                            class="btn btn-primary btn-sm btn-curve clist platform"
+                                                                            data-platform="{{ c.platform }}"
+                                                                            data-fullname="{{ c.firstname }} {{ c.lastname }}">
+                                                                        <i class="fa fa-search"></i> Platform
+                                                                    </button>
+
+                                                                    <button type="button"
+                                                                            class="btn btn-default btn-sm btn-curve clist biography"
+                                                                            data-biography="{{ c.biography }}"
+                                                                            data-fullname="{{ c.firstname }} {{ c.lastname }}">
+                                                                        <i class="fa fa-user"></i> Biography
+                                                                    </button>
+                                                                    <img src="{{ database_media_url(c.photo) }}" height="100px" width="100px" class="clist">
+                                                                    <span class="cname clist">{{ c.firstname }} {{ c.lastname }}</span>
+                                                                </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                <div class="text-center">
+                                    <button type="button" class="btn btn-success btn-curve preview"><i class="fa fa-file-text"></i> Preview</button>
+                                    <button type="submit" class="btn btn-primary btn-curve" name="vote"><i class="fa fa-check-square-o"></i> Submit</button>
+                                </div>
+                            </form>
+                                    {% endif %}
+                                {% else %}
+                                    <h4>Results</h4>
+                                    {% for result in election.results %}
+                                        <p>
+                                            <b>{{ result.position.description }}:</b>
+
+                                            {% if result.is_tie %}
+
+                                                <strong>Tie:</strong>
+                                                {% for candidate in result.winners %}
+                                                    {{ candidate.firstname }} {{ candidate.lastname }}
+                                                    ({{ candidate.vote_count }} votes){% if not loop.last %}, {% endif %}
+                                                {% endfor %}
+
+                                            {% elif result.winner %}
+
+                                                <strong>Winner:</strong>
+                                                {{ result.winner.firstname }}
+                                                {{ result.winner.lastname }}
+                                                ({{ result.winner.vote_count }} votes)
+
+                                            {% else %}
+
+                                                No votes recorded
+
+                                            {% endif %}
+                                        </p>
+                                    {% endfor %}
+                                {% endif %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">There are no elections to display.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <footer class="main-footer" style="background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%); border: none; color: #fff;">
+        <div class="container" style="color:#fff ; font-size: 13px">
+            <div class="pull-right hidden-xs">
+                <b>All rights reserved</b>
+            </div>
+            <b style="color:#fff ; font-size: 13px"><strong>Copyright &copy; CGL </strong></b>
+        </div>
+    </footer>
+
+    <!-- Preview Modal -->
+    <div class="modal fade" id="preview_modal">
+        <div class="modal-dialog">
+            <div class="modal-content" style="background-color: #ffffff; color: #1f2937; border-radius: 16px; border: 1px solid #dfeaf5;" >
+                <div class="modal-header">
+                    <button type="button"  class=" btn btn-close btn-curve pull-right" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" style="color:black ; font-size: 15px; font-family:Times">Vote Preview</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="preview_body"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-curve pull-left" style='background-color: #f8fafc; color:#1f2937; border:1px solid #dfeaf5; font-size: 12px; font-weight: 600;' data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Platform Modal -->
+    <div class="modal fade" id="platform">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><b><span class="candidate"></b></h4>
+                </div>
+                <div class="modal-body">
+                    <p id="plat_view"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biography Modal -->
+    <div class="modal fade" id="biography">
+        <div class="modal-dialog">
+            <div class="modal-content"
+                style="background-color:#ffffff;color:#1f2937;border-radius:16px;border:1px solid #dfeaf5;">
+
+                <div class="modal-header">
+
+                    <button type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                    <h4 class="modal-title">
+                        <b><span class="biography-candidate"></span></b>
+                    </h4>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <h4 style="font-family:Times;">
+                        <b>Biography</b>
+                    </h4>
+
+                    <p id="bio_view"
+                    style="white-space:pre-line;font-family:Times;font-size:16px;">
+                    </p>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-default btn-curve pull-left"
+                            style="background-color:#f8fafc;color:#1f2937;border:1px solid #dfeaf5;font-size:12px;font-weight:600;"
+                            data-dismiss="modal">
+
+                        <i class="fa fa-close"></i> Close
+
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- View Ballot Modal -->
+    <div class="modal fade" id="view">
+        <div class="modal-dialog">
+            <div class="modal-content" style="background-color: #ffffff; color: #1f2937; border-radius: 16px; border: 1px solid #dfeaf5;">
+                <div class="modal-header">
+                    <button type="button" class=" btn btn-close btn-curve pull-right" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"> <b>Your Votes </b></h4>
+                </div>
+                <div class="modal-body">
+                    {% if voter_votes %}
+                        <ul class="list-group">
+                            {% for vote in voter_votes %}
+                                <li class="list-group-item">
+                                    <b>{{ vote.position_desc }}:</b>
+                                    {{ vote.candidate_firstname }} {{ vote.candidate_lastname }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Your ballot was submitted, but no vote details are available.</p>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-curve pull-left" style='background-color: #f8fafc; color:#1f2937; border:1px solid #dfeaf5; font-size: 12px; font-weight: 600;' data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(function(){
+    $('.countdown').each(function () {
+
+        var element = $(this);
+
+        // Get the deadline directly as milliseconds
+        var deadline = Number(element.attr('data-deadline'));
+
+        if (!deadline || isNaN(deadline)) {
+            element.text('Invalid deadline');
+            return;
+        }
+
+        function updateCountdown() {
+
+            var now = Date.now();
+            var remaining = deadline - now;
+
+            if (remaining <= 0) {
+                element.text('Election closed');
+
+                // Reload once the election reaches its deadline
+                setTimeout(function () {
+                    window.location.reload();
+                }, 1000);
+
+                return;
+            }
+
+            var totalSeconds = Math.floor(remaining / 1000);
+
+            var days = Math.floor(totalSeconds / 86400);
+            totalSeconds %= 86400;
+
+            var hours = Math.floor(totalSeconds / 3600);
+            totalSeconds %= 3600;
+
+            var minutes = Math.floor(totalSeconds / 60);
+            var seconds = totalSeconds % 60;
+
+            element.text(
+                days + 'd ' +
+                String(hours).padStart(2, '0') + 'h ' +
+                String(minutes).padStart(2, '0') + 'm ' +
+                String(seconds).padStart(2, '0') + 's remaining'
+            );
+        }
+
+        updateCountdown();
+
+        setInterval(updateCountdown, 1000);
+    });
+
+    $('.content').iCheck({
+        checkboxClass: 'icheckbox_flat-green',
+        radioClass: 'iradio_flat-green'
+    });
+
+    $(document).on('click', '.reset', function(e){
+        e.preventDefault();
+        var desc = $(this).data('desc');
+        $('.'+desc).iCheck('uncheck');
+    });
+
+    $(document).on('click', '.platform', function(e){
+        e.preventDefault();
+        $('#platform').modal('show');
+        var platform = $(this).data('platform');
+        var fullname = $(this).data('fullname');
+        $('.candidate').html(fullname);
+        $('#plat_view').html(platform);
+    });
+
+    $(document).on('click', '.biography', function(e){
+        e.preventDefault();
+
+        var biography = $(this).data('biography');
+        var fullname = $(this).data('fullname');
+
+        $('.biography-candidate').html(fullname);
+
+        if (biography && biography.trim() !== '') {
+            $('#bio_view').text(biography);
+        } else {
+            $('#bio_view').text('No biography available.');
+        }
+
+        $('#biography').modal('show');
+    });
+
+    $('.preview').click(function(e){
+        e.preventDefault();
+        var form = $(this).closest('.ballotForm').serialize();
+        if(form == ''){
+            $('.message').html('You must vote atleast one candidate');
+            $('#alert').show();
+        }
+        else{
+            $.ajax({
+                type: 'POST',
+                url: '{{ url_for("preview") }}',
+                data: form,
+                dataType: 'json',
+                success: function(response){
+                    if(response.error){
+                        var errmsg = '';
+                        var messages = response.message;
+                        for (i in messages) {
+                            errmsg += messages[i]; 
+                        }
+                        $('.message').html(errmsg);
+                        $('#alert').show();
+                    }
+                    else{
+                        $('#preview_modal').modal('show');
+                        $('#preview_body').html(response.list);
+                    }
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

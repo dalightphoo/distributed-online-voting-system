@@ -1,0 +1,378 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard - Admin{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <header class="main-header" style="background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%); border: none;">
+        <a href="#" class="logo" style="background: transparent; border: none;">
+            <span class="logo-mini"><b>O</b>VS</span>
+            <span class="logo-lg" style="font-size: 20px; font-weight: 700;">Online Voting System</span>
+        </a>
+        <nav class="navbar navbar-static-top" style="background: transparent; border: none;">
+            <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                <span class="sr-only">Toggle navigation</span>
+            </a>
+            <div class="navbar-custom-menu">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown user user-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color: #fff;">
+                            <img src="{{ url_for('static', filename='images/' + admin_user.photo) if admin_user.photo else url_for('static', filename='images/profile.jpg') }}" class="user-image" alt="User Image">
+                            <span class="hidden-xs">{{ admin_user.firstname }} {{ admin_user.lastname }}</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="user-header">
+                                <img src="{{ url_for('static', filename='images/' + admin_user.photo) if admin_user.photo else url_for('static', filename='images/profile.jpg') }}" class="img-circle" alt="User Image">
+                                <p>
+                                    {{ admin_user.firstname }} {{ admin_user.lastname }}
+                                    <small>Member since {{ admin_user.created_on.strftime('%b. %Y') if admin_user.created_on else '' }}</small>
+                                </p>
+                            </li>
+                            <li class="user-footer">
+                                <div class="pull-left">
+                                    <a href="#profile" data-toggle="modal" class="btn btn-default btn-curve" id="admin_profile">Update</a>
+                                </div>
+                                <div class="pull-right">
+                                    <a href="{{ url_for('admin_logout') }}" class="btn btn-default btn-curve">Sign out</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <aside class="main-sidebar" style="background: #1f2937;">
+        <section class="sidebar" style="background: #1f2937;">
+            <div class="user-panel" style="height: 60px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <div class="pull-left image">
+                    <img src="{{ url_for('static', filename='images/' + admin_user.photo) if admin_user.photo else url_for('static', filename='images/profile.jpg') }}" class="img-square" alt="User Image">
+                </div>
+                <div class="pull-left info">
+                    <p style="color: #fff; font-size: 15px;">{{ admin_user.firstname }} {{ admin_user.lastname }}</p>
+                    <a><i class="fa fa-circle text-success"></i> <b style="color: #fff; font-size: 12px;">Online</b></a>
+                </div>
+            </div>
+            <div style="padding: 12px 15px; background: #2d3748; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <form method="GET" action="{{ url_for('admin_elections_select') }}">
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <label for="dashboard_election" style="color: #dfeaf5; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;">Current election</label>
+                    <select id="dashboard_election" name="election_id" class="form-control input-sm" onchange="this.form.submit()">
+                        {% for election in admin_elections %}<option value="{{ election.id }}" {{ 'selected' if election.id == selected_admin_election_id }}>{{ election.title }}</option>{% endfor %}
+                    </select>
+                </form>
+            </div>
+            <ul class="sidebar-menu" data-widget="tree" style="background: #1f2937; color: #e5eefb;">
+                <li class="header" style="background: rgba(255,255,255,0.04); color: #cbd5e1; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;">Reports</li>
+                <li class=""><a href="{{ url_for('admin_home') }}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+                <li class=""><a href="{{ url_for('admin_votes') }}"><span class="glyphicon glyphicon-lock"></span> <span>Votes</span></a></li>
+                <li class="header" style="background: rgba(255,255,255,0.04); color: #cbd5e1; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;">Manage</li>
+                <li class=""><a href="{{ url_for('admin_elections') }}"><i class="fa fa-calendar"></i> <span>Elections</span></a></li>
+                <li class=""><a href="{{ url_for('admin_voters') }}"><i class="fa fa-users"></i> <span>Voters</span></a></li>
+                <li class=""><a href="{{ url_for('admin_positions') }}"><i class="fa fa-tasks"></i> <span>Positions</span></a></li>
+                <li class=""><a href="{{ url_for('admin_candidates') }}"><i class="fa fa-black-tie"></i> <span>Candidates</span></a></li>
+                <li class="header" style="background: rgba(255,255,255,0.04); color: #cbd5e1; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;">Settings</li>
+                <li class=""><a href="{{ url_for('admin_ballot') }}"><i class="fa fa-file-text"></i> <span>Ballot Position</span></a></li>
+            </ul>
+        </section>
+    </aside>
+
+    <div class="content-wrapper" style="background: #f4f7fb;">
+        <section class="content-header" style="color: #1f2937; font-size: 17px;">
+            <h1><b>Dashboard - {{ selected_election.title }}</b></h1>
+            <ol class="breadcrumb" style="color: #1f2937; font-size: 17px;">
+                <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+                <li class="active">Dashboard</li>
+            </ol>
+        </section>
+
+        <section class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        {% if category == 'error' %}
+                            <div class='alert alert-danger alert-dismissible'>
+                                <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+                                <h4><i class='icon fa fa-warning'></i> Error!</h4>
+                                {{ message }}
+                            </div>
+                        {% elif category == 'success' %}
+                            <div class='alert alert-success alert-dismissible'>
+                                <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+                                <h4><i class='icon fa fa-check'></i> Success!</h4>
+                                {{ message }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="row">
+                <div class="col-lg-3 col-xs-6" style="font-family:Times">
+                    <div class="small-box" style="background-color: Red">
+                        <div class="inner" style="background-color:#B0C4DE ;color:black ; font-size:15px;">
+                            <h3>{{ positions_count }}</h3>
+                            <p><b>No. of Positions</b></p>
+                        </div>
+                        <div class="icon"><i class="fa fa-cog"></i></div>
+                        <a href="{{ url_for('admin_positions') }}" class="small-box-footer" style="background-color:#4682B4 ; color:black ; font-size:18px">More info <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-xs-6" style="font-family:Times">
+                    <div class="small-box bg-green">
+                        <div class="inner" style="background-color:#DEB887 ;color:black ; font-size:15px">
+                            <h3>{{ candidates_count }}</h3>
+                            <p><b>No. of Candidates</b></p>
+                        </div>
+                        <div class="icon"><i class="fa fa-black-tie"></i></div>
+                        <a href="{{ url_for('admin_candidates') }}" class="small-box-footer" style="background-color:#8B4513 ;color:black ; font-size: 18px">More info <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-xs-6" style="font-family:Times">
+                    <div class="small-box bg-yellow">
+                        <div class="inner" style="background-color: #B59B91 ;color:black ; font-size:15px; font-family:Times">
+                            <h3>{{ voters_count }}</h3>
+                            <p><b>Total Voters</b></p>
+                        </div>
+                        <div class="icon"><i class="fa fa-users"></i></div>
+                        <a href="{{ url_for('admin_voters') }}" class="small-box-footer" style="background-color: #96837E ;color:black ; font-size: 18px">More info <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-xs-6" style="color:black ; font-size: 15px; font-family:Times">
+                    <div class="small-box bg-red">
+                        <div class="inner" style="background-color: #778899 ;color:black ; font-size:15px; font-family:Times">
+                            <h3>{{ votes_count }}</h3>
+                            <p><b>Voters Voted</b></p>
+                        </div>
+                        <div class="icon"><i class="fa fa-edit"></i></div>
+                        <a href="{{ url_for('admin_votes') }}" class="small-box-footer" style="background-color: #2F4F4F ;color:black ; font-size: 18px">More info <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="color:black ; font-size: 17px; font-family:Times">
+                <div class="col-xs-12">
+                    <h3><b>VOTES TALLY</b></h3>
+                </div>
+            </div>
+
+            {% for result in results %}
+                <div class="box box-solid" style="background-color: #ffffff; margin-bottom: 20px; border: 1px solid #dfeaf5; border-radius: 16px;">
+                    <div class="box-header with-border" style="background-color: #f8fafc; border-bottom: 1px solid #dfeaf5; border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                        <h4 class="box-title"><b>{{ result.position.description }}</b></h4>
+                        {% if result.winner %}
+                            <span class="label label-success pull-right" style="font-size: 14px;">Winner: {{ result.winner.firstname }} {{ result.winner.lastname }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="box-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Candidate</th>
+                                        <th>Votes</th>
+                                        <th>Percent</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for candidate in result.candidates %}
+                                        {% set percent = ((candidate.vote_count|int / result.total_votes) * 100) if result.total_votes else 0 %}
+                                        <tr>
+                                            <td>{{ candidate.firstname }} {{ candidate.lastname }}</td>
+                                            <td>{{ candidate.vote_count }}</td>
+                                            <td>{{ '%.2f'|format(percent) }}%</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% for result in results %}
+
+<div class="box box-solid"
+    style="background-color:#ffffff; margin-bottom:20px; border:1px solid #dfeaf5; border-radius:16px;">
+
+    <div class="box-header with-border"
+        style="background-color:#f8fafc; border-bottom:1px solid #dfeaf5; border-top-left-radius:16px; border-top-right-radius:16px;">
+
+        <h4 class="box-title">
+            <b>{{ result.position.description }} - Vote Distribution</b>
+        </h4>
+
+        {% if result.winner %}
+
+            <span class="label label-success pull-right">
+                Winner:
+                {{ result.winner.firstname }}
+                {{ result.winner.lastname }}
+            </span>
+
+        {% endif %}
+
+    </div>
+
+    <div class="box-body">
+
+        <div class="row">
+
+            <!-- PIE CHART -->
+
+            <div class="col-sm-5 text-center">
+
+                    {% if pie_charts[result.position.id] %}
+
+                        <img
+                            src="data:image/png;base64,{{ pie_charts[result.position.id] }}"
+                            alt="Vote Distribution"
+                            style="
+                                width:280px;
+                                max-width:100%;
+                                height:auto;
+                            "
+                        >
+
+                    {% else %}
+
+                        <div class="alert alert-info"
+                            style="margin-top:20px;">
+
+                            No votes recorded yet.
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- VOTE DETAILS -->
+
+                <div class="col-sm-7">
+
+                    <table class="table table-striped">
+
+                        <thead>
+
+                            <tr>
+                                <th>Candidate</th>
+                                <th>Votes</th>
+                                <th>Percent</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for candidate in result.candidates %}
+
+                                {% set percent =
+                                    ((candidate.vote_count|int / result.total_votes) * 100)
+                                    if result.total_votes else 0
+                                %}
+
+                                <tr>
+
+                                    <td>
+                                        {{ candidate.firstname }}
+                                        {{ candidate.lastname }}
+                                    </td>
+
+                                    <td>
+                                        {{ candidate.vote_count }}
+                                    </td>
+
+                                    <td>
+                                        {{ '%.2f'|format(percent) }}%
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+        </section>
+    </div>
+
+    <footer class="main-footer" style="background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%); border: none; color: #fff;">
+        <div class="pull-right hidden-xs" style="color:#fff ; font-size: 13px">
+            <b>All rights reserved</b>
+        </div>
+        <b style="color:#fff ; font-size: 13px"><strong>Copyright &copy; CGL </strong></b>
+    </footer>
+</div>
+
+<!-- Profile Modal -->
+<div class="modal fade" id="profile">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><b>Admin Profile</b></h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" method="POST" action="{{ url_for('admin_profile_update', return='home') }}" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="username" class="col-sm-3 control-label">Username</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="username" name="username" value="{{ admin_user.username }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="col-sm-3 control-label">Password</label>
+                        <div class="col-sm-9"> 
+                            <input type="password" class="form-control" id="password" name="password" value="{{ admin_user.password }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="firstname" class="col-sm-3 control-label">Firstname</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="firstname" name="firstname" value="{{ admin_user.firstname }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastname" class="col-sm-3 control-label">Lastname</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="lastname" name="lastname" value="{{ admin_user.lastname }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="photo" class="col-sm-3 control-label">Photo:</label>
+                        <div class="col-sm-9">
+                            <input type="file" id="photo" name="photo">
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="form-group">
+                        <label for="curr_password" class="col-sm-3 control-label">Current Password:</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" id="curr_password" name="curr_password" placeholder="input current password to save changes" required>
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                <button type="submit" class="btn btn-success btn-flat" name="save"><i class="fa fa-check-square-o"></i> Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

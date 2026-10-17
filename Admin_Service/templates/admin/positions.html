@@ -1,0 +1,200 @@
+﻿{% extends "admin/base.html" %}
+{% from "admin/includes/layout.html" import admin_header, admin_sidebar, admin_footer, flash_messages, profile_modal with context %}
+
+{% block title %}Positions - Admin{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    {{ admin_header(admin_user) }}
+    {{ admin_sidebar(admin_user, 'positions') }}
+
+    <div class="content-wrapper" style="background-color: #f4f7fb;">
+        <div style="margin-bottom: 15px;">
+            <a href="{{ url_for('admin_home') }}"
+            class="btn btn-default btn-curve"
+            style="
+                background-color: #f8fafc;
+                color: #1f2937;
+                font-size: 15px;
+                border: 1px solid #dfeaf5;
+            ">
+                <i class="fa fa-arrow-left"></i>
+                <b>Back to Dashboard</b>
+            </a>
+        </div>
+        <section class="content-header">
+            <h1><b>Positions</b></h1>
+        </section>
+
+        <section class="content">
+            {{ flash_messages() }}
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box" style="background-color: #ffffff; border: 1px solid #dfeaf5; border-radius: 16px;">
+                        <div class="box-header with-border" style="background-color: #f8fafc; border-bottom: 1px solid #dfeaf5; border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                            <a href="#addnew" data-toggle="modal" class="btn btn-primary btn-sm btn-curve" style="background-color: #2563eb; border-color: #2563eb; color: #fff; font-size: 12px; font-weight: 600;"><i class="fa fa-plus"></i> New</a>
+                        </div>
+                        <div class="box-body">
+                            <table id="example1" class="table">
+                                <thead>
+                                    <th class="hidden"></th>
+                                    <th>Description</th>
+                                    <th>Maximum Vote</th>
+                                    <th class="no-sort">Tools</th>
+                                </thead>
+                                <tbody>
+                                    {% for pos in positions %}
+                                        <tr style='color:black ; font-size: 15px; font-family:Times'>
+                                            <td class='hidden'></td>
+                                            <td>{{ pos.description }}</td>
+                                            <td>{{ pos.max_vote }}</td>
+                                            <td>
+                                                <button class='btn btn-success btn-sm edit btn-curve' style='background-color: #0f766e; border-color: #0f766e; color:#fff; font-size: 12px; font-weight: 600;' data-id='{{ pos.id }}'><i class='fa fa-edit'></i> Edit</button>
+                                                <button class='btn btn-danger btn-sm delete btn-curve' style='background-color:#dc2626; border-color:#dc2626; color:#fff; font-size: 12px; font-weight: 600;' data-id='{{ pos.id }}'><i class='fa fa-trash'></i> Delete</button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    {{ admin_footer() }}
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addnew">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #ffffff; color: #1f2937; border-radius: 16px; border: 1px solid #dfeaf5;">
+            <div class="modal-header">
+                <button type="button" class=" btn btn-close btn-curve pull-right" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><b>Add New Position</b></h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" method="POST" action="{{ url_for('admin_positions_add') }}">
+                    <input type="hidden" name="election_id" value="{{ selected_election_id }}">
+                    <div class="form-group">
+                        <label for="description" class="col-sm-3 control-label">Description</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="description" name="description" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="max_vote" class="col-sm-3 control-label">Maximum Vote</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" id="max_vote" name="max_vote" required>
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-curve pull-left" style='background-color: #f8fafc; color:#1f2937; border:1px solid #dfeaf5; font-size: 12px; font-weight: 600;' data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                <button type="submit" class="btn btn-primary btn-curve" style='background-color: #2563eb; border-color: #2563eb; color:#fff; font-size: 12px; font-weight: 600;' name="add"><i class="fa fa-save"></i> Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="edit">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #ffffff; color: #1f2937; border-radius: 16px; border: 1px solid #dfeaf5;">
+            <div class="modal-header">
+                <button type="button" class=" btn btn-close btn-curve pull-right" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><b>Edit Position</b></h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" method="POST" action="{{ url_for('admin_positions_edit') }}">
+                    <input type="hidden" class="id" name="id">
+                    <div class="form-group">
+                        <label for="edit_description" class="col-sm-3 control-label">Description</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="edit_description" name="description">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_max_vote" class="col-sm-3 control-label">Maximum Vote</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" id="edit_max_vote" name="max_vote">
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-curve pull-left" style='background-color: #f8fafc; color:#1f2937; border:1px solid #dfeaf5; font-size: 12px; font-weight: 600;' data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                <button type="submit" class="btn btn-success btn-curve" style='background-color: #0f766e; border-color: #0f766e; color:#fff; font-size: 12px; font-weight: 600;' name="edit"><i class="fa fa-check-square-o"></i> Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="delete">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #ffffff; color: #1f2937; border-radius: 16px; border: 1px solid #dfeaf5;">
+            <div class="modal-header">
+                <button type="button" class=" btn btn-close btn-curve pull-right" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><b>Deleting...</b></h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" method="POST" action="{{ url_for('admin_positions_delete') }}">
+                    <input type="hidden" class="id" name="id">
+                    <div class="text-center">
+                        <p>DELETE POSITION</p>
+                        <h2 class="bold description"></h2>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-curve pull-left" style='background-color: #f8fafc; color:#1f2937; border:1px solid #dfeaf5; font-size: 12px; font-weight: 600;' data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                <button type="submit" class="btn btn-danger btn-curve" style='background-color: #dc2626; border-color:#dc2626; color:#fff; font-size: 12px; font-weight: 600;' name="delete"><i class="fa fa-trash"></i> Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{ profile_modal(admin_user, 'positions') }}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(function(){
+    $(document).on('click', '.edit', function(e){
+        e.preventDefault();
+        $('#edit').modal('show');
+        var id = $(this).data('id');
+        getRow(id);
+    });
+
+    $(document).on('click', '.delete', function(e){
+        e.preventDefault();
+        $('#delete').modal('show');
+        var id = $(this).data('id');
+        getRow(id);
+    });
+});
+
+function getRow(id){
+    $.ajax({
+        type: 'POST',
+        url: '{{ url_for("admin_positions_row") }}',
+        data: {id:id},
+        dataType: 'json',
+        success: function(response){
+            $('.id').val(response.id);
+            $('#edit_description').val(response.description);
+            $('#edit_max_vote').val(response.max_vote);
+            $('.description').html(response.description);
+        }
+    });
+}
+</script>
+{% endblock %}

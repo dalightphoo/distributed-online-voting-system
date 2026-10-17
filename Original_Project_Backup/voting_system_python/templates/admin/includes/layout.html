@@ -1,0 +1,167 @@
+﻿{% macro admin_header(admin_user) %}
+<header class="main-header" style="background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%); border: none;">
+    <a href="#" class="logo" style="background: transparent; border: none;">
+        <span class="logo-mini"><b>O</b>VS</span>
+        <span class="logo-lg" style="font-size: 20px; font-weight: 700;">Online Voting System</span>
+    </a>
+    <nav class="navbar navbar-static-top" style="background: transparent; border: none;">
+        <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+            <span class="sr-only">Toggle navigation</span>
+        </a>
+        <div class="navbar-custom-menu">
+            <ul class="nav navbar-nav">
+                <li class="dropdown user user-menu">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color: #fff;">
+                        <img src="{{ url_for('static', filename='images/' + admin_user.photo) if admin_user.photo else url_for('static', filename='images/profile.jpg') }}" class="user-image" alt="User Image">
+                        <span class="hidden-xs">{{ admin_user.firstname }} {{ admin_user.lastname }}</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class="user-header">
+                            <img src="{{ url_for('static', filename='images/' + admin_user.photo) if admin_user.photo else url_for('static', filename='images/profile.jpg') }}" class="img-circle" alt="User Image">
+                            <p>
+                                {{ admin_user.firstname }} {{ admin_user.lastname }}
+                                <small>Member since {{ admin_user.created_on.strftime('%b. %Y') if admin_user.created_on else '' }}</small>
+                            </p>
+                        </li>
+                        <li class="user-footer">
+                            <div class="pull-left">
+                                <a href="#profile" data-toggle="modal" class="btn btn-default btn-curve" id="admin_profile">Update</a>
+                            </div>
+                            <div class="pull-right">
+                                <a href="{{ url_for('admin_logout') }}" class="btn btn-default btn-curve">Sign out</a>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
+{% endmacro %}
+
+{% macro admin_sidebar(admin_user, active_page) %}
+<aside class="main-sidebar" style="background: #1f2937;">
+    <section class="sidebar" style="background: #1f2937;">
+        <div class="user-panel" style="height: 60px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <div class="pull-left image">
+                <img src="{{ url_for('static', filename='images/' + admin_user.photo) if admin_user.photo else url_for('static', filename='images/profile.jpg') }}" class="img-square" alt="User Image" >
+            </div>
+            <div class="pull-left info">
+                <p style="color: #fff; font-size: 15px;">{{ admin_user.firstname }} {{ admin_user.lastname }}</p>
+                <a><i class="fa fa-circle text-success"></i> <b style="color: #fff; font-size: 12px;">Online</b></a>
+            </div>
+        </div>
+        <div class="election-selector" style="padding: 12px 15px; background: #2d3748; border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <form method="GET" action="{{ url_for('admin_elections_select') }}">
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <label for="sidebar_election">Current election</label>
+                <select id="sidebar_election" name="election_id" class="form-control input-sm" onchange="this.form.submit()">
+                    {% for election in admin_elections %}<option value="{{ election.id }}" {{ 'selected' if election.id == selected_admin_election_id }}>{{ election.title }}</option>{% endfor %}
+                </select>
+            </form>
+        </div>
+        <ul class="sidebar-menu" data-widget="tree" style="background: #1f2937; color: #e5eefb;">
+            <li class="header" style="background: rgba(255,255,255,0.04); color: #cbd5e1; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;">Reports</li>
+            <li class="{{ 'active' if active_page == 'dashboard' }}"><a href="{{ url_for('admin_home') }}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+            <li class="{{ 'active' if active_page == 'votes' }}"><a href="{{ url_for('admin_votes') }}"><span class="glyphicon glyphicon-lock"></span> <span>Votes</span></a></li>
+            <li class="header" style="background: rgba(255,255,255,0.04); color: #cbd5e1; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;">Manage</li>
+            <li class="{{ 'active' if active_page == 'elections' }}"><a href="{{ url_for('admin_elections') }}"><i class="fa fa-calendar"></i> <span>Elections</span></a></li>
+            <li class="{{ 'active' if active_page == 'voters' }}"><a href="{{ url_for('admin_voters') }}"><i class="fa fa-users"></i> <span>Voters</span></a></li>
+            <li class="{{ 'active' if active_page == 'positions' }}"><a href="{{ url_for('admin_positions') }}"><i class="fa fa-tasks"></i> <span>Positions</span></a></li>
+            <li class="{{ 'active' if active_page == 'candidates' }}"><a href="{{ url_for('admin_candidates') }}"><i class="fa fa-black-tie"></i> <span>Candidates</span></a></li>
+            <li class="header" style="background: rgba(255,255,255,0.04); color: #cbd5e1; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;">Settings</li>
+            <li class="{{ 'active' if active_page == 'ballot' }}"><a href="{{ url_for('admin_ballot') }}"><i class="fa fa-file-text"></i> <span>Ballot Position</span></a></li>
+        </ul>
+    </section>
+</aside>
+{% endmacro %}
+
+{% macro admin_footer() %}
+<footer class="main-footer" style="background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%); border: none; color: #fff;">
+    <div class="pull-right hidden-xs" style="color: #fff; font-size: 13px;">
+        <b>All rights reserved</b>
+    </div>
+    <b style="color: #fff; font-size: 13px;"><strong>Copyright &copy; CGL </strong></b>
+</footer>
+{% endmacro %}
+
+{% macro flash_messages() %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            {% if category == 'error' %}
+                <div class='alert alert-danger alert-dismissible' role='alert'>
+                    <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+                    <h4><i class='icon fa fa-warning'></i> Error!</h4>
+                    {{ message }}
+                </div>
+            {% elif category == 'success' %}
+                <div class='alert alert-success alert-dismissible' role='alert'>
+                    <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+                    <h4><i class='icon fa fa-check'></i> Success!</h4>
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+{% endmacro %}
+
+{% macro profile_modal(admin_user, return_page) %}
+<div class="modal fade" id="profile">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><b>Admin Profile</b></h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" method="POST" action="{{ url_for('admin_profile_update', return=return_page) }}" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="username" class="col-sm-3 control-label">Username</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="username" name="username" value="{{ admin_user.username }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="col-sm-3 control-label">Password</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" id="password" name="password" value="{{ admin_user.password }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="firstname" class="col-sm-3 control-label">Firstname</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="firstname" name="firstname" value="{{ admin_user.firstname }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastname" class="col-sm-3 control-label">Lastname</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="lastname" name="lastname" value="{{ admin_user.lastname }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="photo" class="col-sm-3 control-label">Photo:</label>
+                        <div class="col-sm-9">
+                            <input type="file" id="photo" name="photo">
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="form-group">
+                        <label for="curr_password" class="col-sm-3 control-label">Current Password:</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" id="curr_password" name="curr_password" placeholder="input current password to save changes" required>
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                <button type="submit" class="btn btn-success btn-flat" name="save"><i class="fa fa-check-square-o"></i> Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{% block title %}Online Voting System Admin{% endblock %}</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/bootstrap/dist/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='plugins/iCheck/all.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/font-awesome/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/AdminLTE.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/bootstrap-daterangepicker/daterangepicker.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='plugins/timepicker/bootstrap-timepicker.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/skins/_all-skins.min.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+    <style type="text/css">
+        :root {
+            --admin-bg: #f3f6fb;
+            --admin-panel: #ffffff;
+            --admin-panel-soft: #f8fafc;
+            --admin-line: #dfeaf5;
+            --admin-ink: #1f2937;
+            --admin-muted: #64748b;
+            --admin-primary: #2563eb;
+            --admin-accent: #0f766e;
+            --admin-sidebar: #1f2937;
+            --admin-sidebar-strong: #111827;
+            --admin-menu: #243244;
+        }
+
+        body, body * {
+            font-family: "Segoe UI", "Source Sans Pro", sans-serif !important;
+        }
+
+        body {
+            background: var(--admin-bg) !important;
+            color: var(--admin-ink) !important;
+        }
+
+        .skin-blue .main-header,
+        .skin-blue .main-header .navbar,
+        .skin-blue .main-header .logo {
+            background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%) !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .main-sidebar,
+        .skin-blue .main-sidebar {
+            background: var(--admin-sidebar) !important;
+            color: #e5eefb !important;
+        }
+
+        .skin-blue .sidebar-menu > li.header {
+            background: rgba(255,255,255,0.04) !important;
+            color: #cbd5e1 !important;
+        }
+
+        .skin-blue .sidebar-menu > li > a {
+            background: transparent !important;
+            border-radius: 10px;
+            margin: 3px 10px;
+            padding: 11px 14px;
+            color: #edf3ff !important;
+        }
+
+        .skin-blue .sidebar-menu > li > a:hover,
+        .skin-blue .sidebar-menu > li.active > a {
+            background: rgba(255,255,255,0.09) !important;
+            color: #fff !important;
+        }
+
+        .user-panel,
+        .treeview-menu,
+        .sidebar-menu {
+            background: var(--admin-menu) !important;
+        }
+
+        .content-wrapper,
+        .skin-blue .content-wrapper {
+            background: var(--admin-bg) !important;
+        }
+
+        .box,
+        .small-box,
+        .box-body,
+        .box-header {
+            border-radius: 16px !important;
+            border: 1px solid var(--admin-line) !important;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04) !important;
+        }
+
+        .box {
+            background: var(--admin-panel) !important;
+        }
+
+        .box-header {
+            background: var(--admin-panel-soft) !important;
+            border-bottom: 1px solid var(--admin-line) !important;
+        }
+
+        .small-box {
+            border: none !important;
+            overflow: hidden;
+        }
+
+        .small-box .inner {
+            padding: 22px 16px 18px !important;
+            border-radius: 16px 16px 0 0 !important;
+        }
+
+        .small-box-footer {
+            border-radius: 0 0 16px 16px !important;
+            padding: 12px 14px !important;
+            font-weight: 600;
+        }
+
+        .table > thead > tr > th {
+            background: var(--admin-panel-soft) !important;
+            border-bottom: 1px solid var(--admin-line) !important;
+            color: var(--admin-ink) !important;
+            font-weight: 700 !important;
+        }
+
+        .table > tbody > tr > td {
+            border-top: 1px solid var(--admin-line) !important;
+            vertical-align: middle;
+        }
+
+        .btn {
+            border-radius: 10px !important;
+        }
+
+        .btn-primary {
+            background: var(--admin-primary) !important;
+            border-color: var(--admin-primary) !important;
+        }
+
+        .btn-success {
+            background: var(--admin-accent) !important;
+            border-color: var(--admin-accent) !important;
+        }
+
+        .label {
+            border-radius: 999px !important;
+            padding: 0.45em 0.8em !important;
+        }
+
+        .form-control,
+        .select2-selection,
+        .input-group-addon {
+            border-radius: 10px !important;
+            border-color: var(--admin-line) !important;
+            min-height: 38px !important;
+        }
+
+        #dashboard_election {
+            width: 100%;
+            min-width: 170px;
+            max-width: 100%;
+            white-space: normal;
+            border-radius: 10px !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
+            background: rgba(255,255,255,0.08) !important;
+            color: #fff !important;
+        }
+
+        #dashboard_election,
+        #sidebar_election,
+        #voters_election {
+            background: #fff !important;
+            color: #111827 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 10px !important;
+        }
+
+        #dashboard_election option,
+        #sidebar_election option,
+        #voters_election option {
+            background: #fff !important;
+            color: #111827 !important;
+        }
+
+        .main-sidebar .sidebar form label {
+            color: #dfeaf5 !important;
+            font-size: 11px !important;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .main-sidebar .sidebar form .form-control {
+            color: #111827 !important;
+            background: rgba(255,255,255,0.96) !important;
+        }
+
+        .sidebar-mini.sidebar-collapse .main-sidebar {
+            overflow: visible !important;
+        }
+
+        .sidebar-mini.sidebar-collapse .sidebar {
+            overflow: visible !important;
+        }
+
+        .sidebar-mini.sidebar-collapse .main-sidebar .sidebar form {
+            display: none !important;
+        }
+
+        .sidebar-mini.sidebar-collapse .main-sidebar .election-selector {
+            display: none !important;
+        }
+
+        .sidebar-mini.sidebar-collapse .main-sidebar .sidebar .user-panel,
+        .sidebar-mini.sidebar-collapse .main-sidebar .sidebar .header,
+        .sidebar-mini.sidebar-collapse .main-sidebar .sidebar .sidebar-menu {
+            display: none !important;
+        }
+
+        .sidebar-mini .main-sidebar {
+            overflow: visible;
+        }
+
+        .sidebar-mini .sidebar-menu,
+        .sidebar-mini .sidebar-menu > li,
+        .sidebar-mini .sidebar-menu > li > a {
+            overflow: visible;
+        }
+
+        .sidebar-mini.sidebar-collapse .sidebar .sidebar-form,
+        .sidebar-mini.sidebar-collapse .sidebar .user-panel,
+        .sidebar-mini.sidebar-collapse .sidebar .header {
+            display: none !important;
+        }
+
+        @media (max-width: 767px) {
+            .main-sidebar {
+                width: 230px !important;
+            }
+
+            .sidebar-mini.sidebar-collapse .main-sidebar {
+                width: 60px !important;
+            }
+
+            #dashboard_election {
+                min-width: 0;
+            }
+        }
+
+        .bold{ font-weight:bold; }
+        #candidate_list{ margin-top:20px; }
+        #candidate_list ul{ list-style-type:none; }
+        #candidate_list ul li{ margin:0 30px 30px 0; vertical-align:top }
+        .clist{ margin-left: 20px; }
+        .cname{ font-size: 25px; }
+        #example1 thead th {
+            white-space: nowrap;
+        }
+
+        #example1 thead th.sorting,
+        #example1 thead th.sorting_asc,
+        #example1 thead th.sorting_desc {
+            background-image: none !important;
+        }
+
+        #example1 thead th.sorting::after,
+        #example1 thead th.sorting_asc::after,
+        #example1 thead th.sorting_desc::after {
+            position: static !important;
+            display: inline-block !important;
+            margin-left: 8px !important;
+            vertical-align: middle !important;
+        }
+
+        .alert {
+            margin-bottom: 20px !important;
+            padding: 15px 18px !important;
+            border: 1px solid var(--admin-line) !important;
+            border-left-width: 5px !important;
+            border-radius: 12px !important;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05) !important;
+        }
+
+        .alert-success {
+            background: #f0fdf9 !important;
+            color: #166534 !important;
+            border-left-color: var(--admin-accent) !important;
+        }
+
+        .alert-danger {
+            background: #fff7f7 !important;
+            color: #b91c1c !important;
+            border-left-color: #dc2626 !important;
+        }
+
+        .alert-danger,
+        .alert-danger h4,
+        .alert-danger p,
+        .alert-danger b,
+        .alert-danger strong,
+        .alert-danger .icon {
+            color: #991b1b !important;
+        }
+
+        .alert h4 {
+            margin: 0 0 5px !important;
+            font-size: 15px !important;
+            font-weight: 700 !important;
+        }
+
+        .alert .close {
+            color: currentColor !important;
+            opacity: 0.65;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}hold-transition skin-blue sidebar-mini{% endblock %}">
+    <script>
+        (function () {
+            try {
+                if (window.localStorage.getItem('admin-sidebar-collapsed') === 'true') {
+                    document.body.classList.add('sidebar-collapse');
+                }
+            } catch (error) {
+                return;
+            }
+        }());
+    </script>
+    {% block content %}{% endblock %}
+    
+    <script src="{{ url_for('static', filename='bower_components/jquery/dist/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/jquery-ui/jquery-ui.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='plugins/iCheck/icheck.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/moment/moment.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/moment/min/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='plugins/timepicker/bootstrap-timepicker.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/jquery-slimscroll/jquery.slimscroll.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/fastclick/lib/fastclick.js') }}"></script>
+    <script src="{{ url_for('static', filename='dist/js/adminlte.min.js') }}"></script>
+
+    <script>
+        $(function () {
+            $('[data-toggle="push-menu"]').on('click', function () {
+                window.setTimeout(function () {
+                    try {
+                        window.localStorage.setItem(
+                            'admin-sidebar-collapsed',
+                            $('body').hasClass('sidebar-collapse') ? 'true' : 'false'
+                        );
+                    } catch (error) {
+                        return;
+                    }
+                }, 0);
+            });
+        });
+    </script>
+    
+    <script>
+        $(function(){
+            var url = window.location;
+            $('ul.sidebar-menu a').filter(function() {
+                return this.href == url;
+            }).parent().addClass('active');
+            $('ul.treeview-menu a').filter(function() {
+                return this.href == url;
+            }).parentsUntil(".sidebar-menu > .treeview-menu").addClass('active');
+        });
+    </script>
+    <script>
+        $(function () {
+
+            $('#example1').DataTable({
+                'paging': true,
+                'lengthChange': true,
+                'searching': true,
+                'ordering': true,
+                'info': true,
+                'autoWidth': false,
+
+                columnDefs: [
+                    {
+                        targets: 'no-sort',
+                        orderable: false
+                    }
+                ]
+            });
+
+            $('#example2').DataTable({
+                'paging': true,
+                'lengthChange': false,
+                'searching': false,
+                'ordering': true,
+                'info': true,
+                'autoWidth': false
+            });
+
+        });
+    </script>
+    <script>
+        $(function(){
+            $('#datepicker_add').datepicker({
+                autoclose: true,
+                format: 'yyyy-mm-dd'
+            })
+            $('#datepicker_edit').datepicker({
+                autoclose: true,
+                format: 'yyyy-mm-dd'
+            }) 
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
