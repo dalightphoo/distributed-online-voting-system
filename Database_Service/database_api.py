@@ -14,7 +14,7 @@ from werkzeug.utils import secure_filename
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get("VOTING_DB_PATH", os.path.join(BASE_DIR, "database.db"))
 SERVICE_TOKEN = os.environ.get("SERVICE_TOKEN", "university-demo-token")
-MEDIA_DIR = os.path.join(BASE_DIR, "media")
+MEDIA_DIR = os.environ.get("MEDIA_DIR", os.path.join(BASE_DIR, "media"))
 ALLOWED_IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "gif", "webp"}
 
 app = Flask(__name__)
@@ -22,6 +22,7 @@ app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 
 def db():
+    os.makedirs(os.path.dirname(os.path.abspath(DB_PATH)), exist_ok=True)
     connection = sqlite3.connect(DB_PATH, timeout=10)
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA foreign_keys = ON")
