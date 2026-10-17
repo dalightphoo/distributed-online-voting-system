@@ -327,4 +327,4 @@ def admin_config_save(): flash("Display settings saved for this service session.
 @required
 def admin_profile_update(): flash("Admin profile editing remains database-service controlled.","error"); return redirect(url_for("admin_home"))
 
-if __name__=="__main__": app.run(host="127.0.0.1",port=5001,debug=False)
+if __name__=="__main__": app.run(host="0.0.0.0",port=5001,debug=False)
