@@ -20,8 +20,11 @@ def slugify(text):
 def database_media_url(filename):
     if not filename:
         return url_for("static", filename="images/profile.jpg")
-    api_url=os.environ.get("DATABASE_SERVICE_URL","http://127.0.0.1:5002/api").rstrip("/")
-    return f'{api_url[:-4] if api_url.endswith("/api") else api_url}/media/{quote(filename)}'
+    public_url=os.environ.get("DATABASE_MEDIA_PUBLIC_URL")
+    if not public_url:
+        api_url=os.environ.get("DATABASE_SERVICE_URL","http://127.0.0.1:5002/api").rstrip("/")
+        public_url=api_url[:-4] if api_url.endswith("/api") else api_url
+    return f'{public_url.rstrip("/")}/media/{quote(filename)}'
 @app.context_processor
 def media_context(): return {"database_media_url": database_media_url}
 def required(fn):
@@ -34,7 +37,9 @@ def unavailable(exc, endpoint="index"):
 @app.get("/")
 def index(): return redirect(url_for("home")) if session.get("voter") else render_template("index.html")
 @app.get("/admin/")
-def admin_index(): return redirect("http://127.0.0.1:5001/admin/")
+def admin_index():
+    admin_url=os.environ.get("ADMIN_PUBLIC_URL","http://127.0.0.1:5001").rstrip("/")
+    return redirect(f"{admin_url}/admin/")
 @app.post("/login")
 def login():
     try:

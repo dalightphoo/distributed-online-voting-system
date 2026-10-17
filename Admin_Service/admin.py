@@ -19,8 +19,11 @@ app.config["UPLOAD_FOLDER"]=os.path.join(os.path.dirname(__file__),"static","ima
 def database_media_url(filename):
     if not filename:
         return url_for("static", filename="images/profile.jpg")
-    api_url=os.environ.get("DATABASE_SERVICE_URL","http://127.0.0.1:5002/api").rstrip("/")
-    return f'{api_url[:-4] if api_url.endswith("/api") else api_url}/media/{quote(filename)}'
+    public_url=os.environ.get("DATABASE_MEDIA_PUBLIC_URL")
+    if not public_url:
+        api_url=os.environ.get("DATABASE_SERVICE_URL","http://127.0.0.1:5002/api").rstrip("/")
+        public_url=api_url[:-4] if api_url.endswith("/api") else api_url
+    return f'{public_url.rstrip("/")}/media/{quote(filename)}'
 
 def required(fn):
     @wraps(fn)
@@ -54,9 +57,13 @@ app.context_processor(admin_context)
 @app.get("/admin/")
 def admin_index(): return redirect(url_for("admin_home")) if session.get("admin") else render_template("admin/index.html")
 @app.get("/register")
-def register(): return redirect("http://127.0.0.1:5000/register")
+def register():
+    voting_url=os.environ.get("VOTING_PUBLIC_URL","http://127.0.0.1:5000").rstrip("/")
+    return redirect(f"{voting_url}/register")
 @app.get("/voter")
-def index(): return redirect("http://127.0.0.1:5000/")
+def index():
+    voting_url=os.environ.get("VOTING_PUBLIC_URL","http://127.0.0.1:5000").rstrip("/")
+    return redirect(f"{voting_url}/")
 @app.post("/admin/login")
 def admin_login():
     try:
@@ -327,4 +334,4 @@ def admin_config_save(): flash("Display settings saved for this service session.
 @required
 def admin_profile_update(): flash("Admin profile editing remains database-service controlled.","error"); return redirect(url_for("admin_home"))
 
-if __name__=="__main__": app.run(host="0.0.0.0",port=5001,debug=False)
+if __name__=="__main__": app.run(host="0.0.0.0",port=int(os.environ.get("PORT","5001")),debug=False)
